@@ -32,7 +32,6 @@ const axios_fetch_adapter_1 = __importDefault(require("@vespaiach/axios-fetch-ad
 require("regenerator-runtime/runtime");
 axios_1.default.defaults.adapter = axios_fetch_adapter_1.default;
 axios_1.default.defaults.withCredentials = globalThis.window ? true : undefined;
-console.log("test");
 class RiotApiClient {
     /**
      * - Initiates the base client
@@ -91,12 +90,12 @@ class RiotApiClient {
      * @warning You probably shouldn't call this method
      */
     buildServices() {
+        this.http = new Http(this.auth, this.clientVersion, this.jar);
         this.storeApi = new StoreApi_1.StoreApi(this);
         this.partyApi = new PartyApi_1.PartyApi(this);
         this.playerApi = new PlayerApi_1.PlayerApi(this);
         this.contentApi = new ContentApi_1.ContentApi(this);
         this.matchApi = new MatchApi_1.MatchApi(this);
-        this.http = new Http(this.auth, this.clientVersion, this.jar);
     }
 }
 exports.RiotApiClient = RiotApiClient;
