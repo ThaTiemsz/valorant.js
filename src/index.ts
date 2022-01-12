@@ -18,7 +18,7 @@ import "regenerator-runtime/runtime";
 
 Axios.defaults.adapter = fetchAdapter;
 Axios.defaults.withCredentials = globalThis.window ? true : undefined;
-
+console.log("test")
 export class RiotApiClient {
     #config: IConfig
     auth: IAuthorization
