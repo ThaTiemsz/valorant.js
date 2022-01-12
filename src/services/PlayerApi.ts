@@ -60,7 +60,7 @@ export class PlayerApi {
             })
             .build();
         const cookieRes = await this._client.http.sendRequest(cookieReq);
-        return cookieRes.config.jar as CookieJar
+        return cookieRes.config.jar as CookieJar;
     }
 
     /**
