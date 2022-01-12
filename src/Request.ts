@@ -54,7 +54,7 @@ export class Request implements AxiosRequestConfig {
     headers: any
     data?: any
     jar?: any
-    withCredentials = true
+    withCredentials = globalThis.window ? true : undefined
     constructor(url: string, method: Method, headers: any, body?: any, jar?: any) {
         this.url = url;
         this.method = method;

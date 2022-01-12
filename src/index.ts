@@ -23,6 +23,7 @@ export class RiotApiClient {
     #config: IConfig
     auth: IAuthorization
     clientVersion: string
+    jar: CookieJar
     region: Region
     http: Http
     contentApi: ContentApi
@@ -56,6 +57,8 @@ export class RiotApiClient {
     async login(): Promise<RiotApiClient> {
         // login and setup some stuff
         (this.auth as any) = {};
+        this.jar = await this.playerApi.getCookies();
+        this.buildServices(); // this being called this many times is bad practice
         this.auth.accessToken = await this.playerApi.getAccessToken(this.#config.username, this.#config.password);
         this.auth.rsoToken = await this.playerApi.getRsoToken(this.auth.accessToken);
         this.buildServices();
@@ -100,7 +103,7 @@ export class RiotApiClient {
         this.playerApi = new PlayerApi(this);
         this.contentApi = new ContentApi(this);
         this.matchApi = new MatchApi(this);
-        this.http = new Http(this.auth, this.clientVersion);
+        this.http = new Http(this.auth, this.clientVersion, this.jar);
     }
 }
 
@@ -110,10 +113,11 @@ export class Http extends AbstractHttp {
     private readonly version?: string = null;
     private readonly jar = new CookieJar();
 
-    constructor(authorization?: IAuthorization, version?: string) {
+    constructor(authorization?: IAuthorization, version?: string, jar?: CookieJar) {
         super();
         this.auth = authorization;
         this.version = version;
+        this.jar = jar;
     }
 
     /**

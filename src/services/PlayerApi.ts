@@ -8,6 +8,9 @@ import { IRsoToken } from "../models/IRsoToken";
 import { ItemParser } from "../helpers/ItemParser";
 import { IAccount } from "../models/IAccount";
 import { InvalidCredsException } from "../models/Exceptions";
+import { CookieJar } from "tough-cookie";
+
+const UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36";
 
 export class PlayerApi {
     private _client: RiotApiClient
@@ -41,16 +44,14 @@ export class PlayerApi {
     }
 
     /**
-     * - Gets an access token
-     * @param username Username of the account
-     * @param password Password of the account
+     * - Gets the cookies
      */
-    async getAccessToken(username: string, password: string): Promise<IAccessToken> {
+    async getCookies(): Promise<CookieJar> {
         const cookieReq = new RequestBuilder()
             .setMethod("POST")
             .setUrl(Endpoints.Auth + "/api/v1/authorization")
             .addHeader("content-type", "application/json")
-            .addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36")
+            .addHeader("user-agent", UserAgent)
             .setBody({
                 "client_id": "play-valorant-web-prod",
                 "nonce": "1",
@@ -58,13 +59,21 @@ export class PlayerApi {
                 "response_type": "token id_token"
             })
             .build();
-        await this._client.http.sendRequest(cookieReq);
+        const cookieRes = await this._client.http.sendRequest(cookieReq);
+        return cookieRes.config.jar as CookieJar
+    }
 
+    /**
+     * - Gets an access token
+     * @param username Username of the account
+     * @param password Password of the account
+     */
+    async getAccessToken(username: string, password: string): Promise<IAccessToken> {
         const loginReq = new RequestBuilder()
             .setMethod("PUT")
             .setUrl(Endpoints.Auth + "/api/v1/authorization")
             .addHeader("content-type", "application/json")
-            .addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36")
+            .addHeader("user-agent", UserAgent)
             .setBody({
                 "type": "auth",
                 "username": username,
