@@ -13,6 +13,11 @@ import { Endpoints } from "./resources/Endpoints";
 import { ApiClientException } from "./models/Exceptions";
 import { CookieJar } from "tough-cookie";
 import axiosCookieJarSupport from "axios-cookiejar-support";
+import fetchAdapter from "@vespaiach/axios-fetch-adapter";
+import "regenerator-runtime/runtime";
+
+Axios.defaults.adapter = fetchAdapter;
+Axios.defaults.withCredentials = globalThis.window ? true : undefined;
 
 export class RiotApiClient {
     #config: IConfig
