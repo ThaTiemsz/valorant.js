@@ -18,6 +18,8 @@ import "regenerator-runtime/runtime";
 Axios.defaults.adapter = fetchAdapter;
 Axios.defaults.withCredentials = globalThis.window ? true : undefined;
 
+let debug = false;
+
 export class RiotApiClient {
     #config: IConfig
     auth: IAuthorization
@@ -44,8 +46,14 @@ export class RiotApiClient {
     constructor(config: IConfig) {
         if (!(config.region instanceof Region))
             throw new Error("'Config.region' must be type of 'Region'.")
-        this.http = new Http(null, null, null, this.#config?.ignoreCookieErrors);
+        if (typeof config?.debug === "undefined" || config?.debug === null)
+            config.debug = false
+        if (typeof config?.ignoreCookieErrors === "undefined" || config?.ignoreCookieErrors === null)
+            config.ignoreCookieErrors = false
+
+        debug = true;
         this.#config = config;
+        this.http = new Http(null, null, null, this.#config.ignoreCookieErrors);
         this.region = config.region;
         this.buildServices();
     }
@@ -56,6 +64,7 @@ export class RiotApiClient {
     async login(): Promise<RiotApiClient> {
         // set cookies
         this.jar = await this.playerApi.getCookies();
+        if (debug) console.log("RiotApiClient.login playerApi.getCookies", this.jar);
         this.buildServices(); // calling this method so many times is bad
         // login and setup some stuff
         (this.auth as any) = {};
@@ -159,6 +168,7 @@ export class Http extends AbstractHttp {
         const cookie = await this.jar.getCookieString(req.getUrl());
         if (cookie)
             req.addHeader("Cookie", cookie);
+        if (debug) console.log("Http.setCookieHeaders cookie", cookie);
         return req;
     }
 
@@ -172,6 +182,7 @@ export class Http extends AbstractHttp {
      */
     async setCookieJar(res: AxiosResponse): Promise<void> {
         const cookies = res.headers["set-cookie"] ?? [];
+        if (debug) console.log("Http.setCookieJar cookies", cookies);
         await Promise.all(
             cookies.map(cookie => this.jar.setCookie(cookie, res.config.url, { ignoreError: this.ignoreCookieErrors }))
         );
