@@ -37,10 +37,11 @@ class RiotApiClient {
      * @param config Config for the lib
      */
     constructor(config) {
+        var _a;
         _RiotApiClient_config.set(this, void 0);
         if (!(config.region instanceof Region))
             throw new Error("'Config.region' must be type of 'Region'.");
-        this.http = new Http(null, null, null, __classPrivateFieldGet(this, _RiotApiClient_config, "f").ignoreCookieErrors);
+        this.http = new Http(null, null, null, (_a = __classPrivateFieldGet(this, _RiotApiClient_config, "f")) === null || _a === void 0 ? void 0 : _a.ignoreCookieErrors);
         __classPrivateFieldSet(this, _RiotApiClient_config, config, "f");
         this.region = config.region;
         this.buildServices();
@@ -90,7 +91,8 @@ class RiotApiClient {
      * @warning You probably shouldn't call this method
      */
     buildServices() {
-        this.http = new Http(this.auth, this.clientVersion, this.jar, __classPrivateFieldGet(this, _RiotApiClient_config, "f").ignoreCookieErrors);
+        var _a;
+        this.http = new Http(this.auth, this.clientVersion, this.jar, (_a = __classPrivateFieldGet(this, _RiotApiClient_config, "f")) === null || _a === void 0 ? void 0 : _a.ignoreCookieErrors);
         this.storeApi = new StoreApi_1.StoreApi(this);
         this.partyApi = new PartyApi_1.PartyApi(this);
         this.playerApi = new PlayerApi_1.PlayerApi(this);
