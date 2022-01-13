@@ -1,14 +1,14 @@
 "use strict";
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
 var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
     if (kind === "m") throw new TypeError("Private method is not writable");
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
     return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -31,18 +31,23 @@ const axios_fetch_adapter_1 = __importDefault(require("@vespaiach/axios-fetch-ad
 require("regenerator-runtime/runtime");
 axios_1.default.defaults.adapter = axios_fetch_adapter_1.default;
 axios_1.default.defaults.withCredentials = globalThis.window ? true : undefined;
+let debug = false;
 class RiotApiClient {
     /**
      * - Initiates the base client
      * @param config Config for the lib
      */
     constructor(config) {
-        var _a;
         _RiotApiClient_config.set(this, void 0);
         if (!(config.region instanceof Region))
             throw new Error("'Config.region' must be type of 'Region'.");
-        this.http = new Http(null, null, null, (_a = __classPrivateFieldGet(this, _RiotApiClient_config, "f")) === null || _a === void 0 ? void 0 : _a.ignoreCookieErrors);
+        if (typeof (config === null || config === void 0 ? void 0 : config.debug) === "undefined" || (config === null || config === void 0 ? void 0 : config.debug) === null)
+            config.debug = false;
+        if (typeof (config === null || config === void 0 ? void 0 : config.ignoreCookieErrors) === "undefined" || (config === null || config === void 0 ? void 0 : config.ignoreCookieErrors) === null)
+            config.ignoreCookieErrors = false;
+        debug = true;
         __classPrivateFieldSet(this, _RiotApiClient_config, config, "f");
+        this.http = new Http(null, null, null, __classPrivateFieldGet(this, _RiotApiClient_config, "f").ignoreCookieErrors);
         this.region = config.region;
         this.buildServices();
     }
@@ -52,6 +57,8 @@ class RiotApiClient {
     async login() {
         // set cookies
         this.jar = await this.playerApi.getCookies();
+        if (debug)
+            console.log("RiotApiClient.login playerApi.getCookies", this.jar);
         this.buildServices(); // calling this method so many times is bad
         // login and setup some stuff
         this.auth = {};
@@ -153,6 +160,8 @@ class Http extends Http_1.AbstractHttp {
         const cookie = await this.jar.getCookieString(req.getUrl());
         if (cookie)
             req.addHeader("Cookie", cookie);
+        if (debug)
+            console.log("Http.setCookieHeaders cookie", cookie);
         return req;
     }
     getCookieJar() {
@@ -165,6 +174,8 @@ class Http extends Http_1.AbstractHttp {
     async setCookieJar(res) {
         var _a;
         const cookies = (_a = res.headers["set-cookie"]) !== null && _a !== void 0 ? _a : [];
+        if (debug)
+            console.log("Http.setCookieJar cookies", cookies);
         await Promise.all(cookies.map(cookie => this.jar.setCookie(cookie, res.config.url, { ignoreError: this.ignoreCookieErrors })));
     }
 }
