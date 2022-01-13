@@ -46,7 +46,7 @@ export class PlayerApi {
     /**
      * - Gets the cookies
      */
-    async getCookies(): Promise<void> {
+    async getCookies(): Promise<CookieJar> {
         const cookieReq = new RequestBuilder()
             .setMethod("POST")
             .setUrl(Endpoints.Auth + "/api/v1/authorization")
@@ -60,6 +60,7 @@ export class PlayerApi {
             })
             .build();
          await this._client.http.sendRequest(cookieReq);
+         return this._client.http.getCookieJar();
     }
 
     /**

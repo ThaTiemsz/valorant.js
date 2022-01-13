@@ -55,8 +55,7 @@ export class RiotApiClient {
      */
     async login(): Promise<RiotApiClient> {
         // set cookies
-        await this.playerApi.getCookies();
-        this.jar = this.http.getCookieJar();
+        this.jar = await this.playerApi.getCookies();
         this.buildServices(); // calling this method so many times is bad
         // login and setup some stuff
         (this.auth as any) = {};
