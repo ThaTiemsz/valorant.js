@@ -7,6 +7,7 @@ export declare class RequestBuilder {
     private _method;
     private _jar;
     static fromRequest(request: Request): RequestBuilder;
+    getUrl(): string;
     setUrl(url: string): RequestBuilder;
     setBody(body: any): RequestBuilder;
     setMethod(method: Method): RequestBuilder;

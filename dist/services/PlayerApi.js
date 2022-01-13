@@ -53,8 +53,7 @@ class PlayerApi {
             "response_type": "token id_token"
         })
             .build();
-        const cookieRes = await this._client.http.sendRequest(cookieReq);
-        return cookieRes.config.jar;
+        await this._client.http.sendRequest(cookieReq);
     }
     /**
      * - Gets an access token

@@ -8,7 +8,7 @@ import { IConfig } from "./models/IConfig";
 import { IAuthorization } from "./models/IAuthorization";
 import { AbstractHttp } from "./Http";
 import { AxiosResponse } from "axios";
-import { Request } from "./Request";
+import { Request, RequestBuilder } from "./Request";
 import { CookieJar } from "tough-cookie";
 import "regenerator-runtime/runtime";
 export declare class RiotApiClient {
@@ -51,13 +51,25 @@ export declare class Http extends AbstractHttp {
     private readonly auth?;
     private readonly version?;
     private readonly jar;
-    constructor(authorization?: IAuthorization, version?: string, jar?: CookieJar);
+    private readonly ignoreCookieErrors;
+    constructor(authorization?: IAuthorization, version?: string, jar?: CookieJar, ignoreCookieErrors?: boolean);
     /**
      * - Sends a request
      * @param request Request to send
      * @throws {ApiClientException}
      */
     sendRequest(request: Request): Promise<AxiosResponse>;
+    /**
+     * - Sets cookies in the request headers
+     * @param req Request
+     */
+    setCookieHeaders(req: RequestBuilder): Promise<RequestBuilder>;
+    getCookieJar(): CookieJar;
+    /**
+     * - Sets cookies from a response in the cookie jar
+     * @param res Axios response
+     */
+    setCookieJar(res: AxiosResponse): Promise<void>;
 }
 export declare class Region {
     BaseUrl: string;

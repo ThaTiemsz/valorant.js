@@ -16,6 +16,9 @@ class RequestBuilder {
         objMap.forEach((v, k) => obj = obj.addHeader(k, v));
         return obj;
     }
+    getUrl() {
+        return this._url;
+    }
     setUrl(url) {
         this._url = url;
         return this;

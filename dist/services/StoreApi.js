@@ -36,7 +36,7 @@ class StoreApi {
     /**
      * - Gets the storefront
      * @param accountId Account to get storefront for
-     * @param parse Wether to parse the shop or not
+     * @param parse Whether to parse the shop or not
      */
     async getStorefront(accountId, parse) {
         const storeReq = new Request_1.RequestBuilder()
