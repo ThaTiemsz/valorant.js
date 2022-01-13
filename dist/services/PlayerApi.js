@@ -54,6 +54,7 @@ class PlayerApi {
         })
             .build();
         await this._client.http.sendRequest(cookieReq);
+        return this._client.http.getCookieJar();
     }
     /**
      * - Gets an access token

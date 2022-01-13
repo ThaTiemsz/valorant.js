@@ -3,6 +3,7 @@ import { IUserInfo } from "../models/IUserInfo";
 import { IAccessToken } from "../models/IAccessToken";
 import { IRsoToken } from "../models/IRsoToken";
 import { IAccount } from "../models/IAccount";
+import { CookieJar } from "tough-cookie";
 export declare class PlayerApi {
     private _client;
     constructor(client: RiotApiClient);
@@ -18,7 +19,7 @@ export declare class PlayerApi {
     /**
      * - Gets the cookies
      */
-    getCookies(): Promise<void>;
+    getCookies(): Promise<CookieJar>;
     /**
      * - Gets an access token
      * @param username Username of the account
