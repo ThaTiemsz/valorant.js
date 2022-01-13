@@ -173,7 +173,7 @@ class Http extends Http_1.AbstractHttp {
      */
     async setCookieJar(res) {
         var _a;
-        const cookies = (_a = res.headers["set-cookie"]) !== null && _a !== void 0 ? _a : [];
+        const cookies = (_a = res.headers.getAll("set-cookie")) !== null && _a !== void 0 ? _a : [];
         if (debug)
             console.log("Http.setCookieJar cookies", cookies);
         await Promise.all(cookies.map(cookie => this.jar.setCookie(cookie, res.config.url, { ignoreError: this.ignoreCookieErrors })));
