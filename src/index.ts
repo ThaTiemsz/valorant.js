@@ -44,7 +44,7 @@ export class RiotApiClient {
     constructor(config: IConfig) {
         if (!(config.region instanceof Region))
             throw new Error("'Config.region' must be type of 'Region'.")
-        this.http = new Http(null, null, null, this.#config.ignoreCookieErrors);
+        this.http = new Http(null, null, null, this.#config?.ignoreCookieErrors);
         this.#config = config;
         this.region = config.region;
         this.buildServices();
@@ -98,7 +98,7 @@ export class RiotApiClient {
      * @warning You probably shouldn't call this method
      */
     buildServices() {
-        this.http = new Http(this.auth, this.clientVersion, this.jar, this.#config.ignoreCookieErrors);
+        this.http = new Http(this.auth, this.clientVersion, this.jar, this.#config?.ignoreCookieErrors);
         this.storeApi = new StoreApi(this);
         this.partyApi = new PartyApi(this);
         this.playerApi = new PlayerApi(this);
