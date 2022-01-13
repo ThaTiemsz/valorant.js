@@ -14,8 +14,13 @@ export interface IConfig {
      */
     region: Region,
     /**
-     * - Wether to get verbose output
+     * - Whether to get verbose output
      * @default false
      */
     debug?: boolean
+    /**
+     * - Whether to ignore cookie errors
+     * @default false
+     */
+    ignoreCookieErrors?: boolean
 }

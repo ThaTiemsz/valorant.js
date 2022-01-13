@@ -12,7 +12,6 @@ import { Request, RequestBuilder } from "./Request";
 import { Endpoints } from "./resources/Endpoints";
 import { ApiClientException } from "./models/Exceptions";
 import { CookieJar } from "tough-cookie";
-import axiosCookieJarSupport from "axios-cookiejar-support";
 import fetchAdapter from "@vespaiach/axios-fetch-adapter";
 import "regenerator-runtime/runtime";
 
@@ -45,7 +44,7 @@ export class RiotApiClient {
     constructor(config: IConfig) {
         if (!(config.region instanceof Region))
             throw new Error("'Config.region' must be type of 'Region'.")
-        this.http = new Http();
+        this.http = new Http(null, null, null, this.#config.ignoreCookieErrors);
         this.#config = config;
         this.region = config.region;
         this.buildServices();
@@ -55,10 +54,11 @@ export class RiotApiClient {
      * - Logins into your account
      */
     async login(): Promise<RiotApiClient> {
+        // set cookies
+        await this.playerApi.getCookies();
+        this.jar = this.http.getCookieJar();
         // login and setup some stuff
         (this.auth as any) = {};
-        this.jar = await this.playerApi.getCookies();
-        this.buildServices(); // this being called this many times is bad practice
         this.auth.accessToken = await this.playerApi.getAccessToken(this.#config.username, this.#config.password);
         this.auth.rsoToken = await this.playerApi.getRsoToken(this.auth.accessToken);
         this.buildServices();
@@ -98,7 +98,7 @@ export class RiotApiClient {
      * @warning You probably shouldn't call this method
      */
     buildServices() {
-        this.http = new Http(this.auth, this.clientVersion, this.jar);
+        this.http = new Http(this.auth, this.clientVersion, this.jar, this.#config.ignoreCookieErrors);
         this.storeApi = new StoreApi(this);
         this.partyApi = new PartyApi(this);
         this.playerApi = new PlayerApi(this);
@@ -107,17 +107,18 @@ export class RiotApiClient {
     }
 }
 
-axiosCookieJarSupport(Axios);
 export class Http extends AbstractHttp {
     private readonly auth?: IAuthorization = null;
     private readonly version?: string = null;
     private readonly jar = new CookieJar();
+    private readonly ignoreCookieErrors: boolean;
 
-    constructor(authorization?: IAuthorization, version?: string, jar?: CookieJar) {
+    constructor(authorization?: IAuthorization, version?: string, jar?: CookieJar, ignoreCookieErrors: boolean = false) {
         super();
         this.auth = authorization;
         this.version = version;
-        this.jar = jar;
+        if (jar) this.jar = jar;
+        this.ignoreCookieErrors = ignoreCookieErrors;
     }
 
     /**
@@ -127,7 +128,7 @@ export class Http extends AbstractHttp {
      */
     async sendRequest(request: Request): Promise<AxiosResponse> {
         try {
-            const modifiedReq = RequestBuilder.fromRequest(request);
+            let modifiedReq = RequestBuilder.fromRequest(request);
 
             if (this.auth != null && this.auth.accessToken != null) {
                 modifiedReq.addHeader("Authorization", `${this.auth.accessToken.token_type} ${this.auth.accessToken.access_token}`);
@@ -138,14 +139,42 @@ export class Http extends AbstractHttp {
                 modifiedReq.addHeader("X-Riot-ClientVersion", this.version);
 
             modifiedReq.addHeader("X-Riot-ClientPlatform", RiotApiClient.XRiotClientPlatform);
-            modifiedReq.setCookieJar(this.jar);
+            modifiedReq = await this.setCookieHeaders(modifiedReq);
 
-            return await Axios(modifiedReq.build());
+            const res = await Axios(modifiedReq.build());
+            await this.setCookieJar(res);
+            return res;
         } catch (e) {
             throw e.response
                 ? new ApiClientException(e)
                 : e;
         }
+    }
+
+    /**
+     * - Sets cookies in the request headers
+     * @param req Request
+     */
+    async setCookieHeaders(req: RequestBuilder): Promise<RequestBuilder> {
+        const cookie = await this.jar.getCookieString(req.getUrl());
+        if (cookie)
+            req.addHeader("Cookie", cookie);
+        return req;
+    }
+
+    public getCookieJar() {
+        return this.jar;
+    }
+
+    /**
+     * - Sets cookies from a response in the cookie jar
+     * @param res Axios response
+     */
+    async setCookieJar(res: AxiosResponse): Promise<void> {
+        const cookies = res.headers["set-cookie"] ?? [];
+        await Promise.all(
+            cookies.map(cookie => this.jar.setCookie(cookie, res.config.url, { ignoreError: this.ignoreCookieErrors }))
+        );
     }
 }
 

@@ -18,6 +18,10 @@ export class RequestBuilder {
         return obj;
     }
 
+    public getUrl(): string {
+        return this._url;
+    }
+
     public setUrl(url: string): RequestBuilder {
         this._url = url;
         return this;

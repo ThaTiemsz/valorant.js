@@ -9,7 +9,7 @@ console.log(comphistory);
 ```
 
 ### Parameters
-* `parse` - Wether to parse or return raw response (standard: true)
+* `parse` - Whether to parse or return raw response (standard: true)
 * `<ValorantClient>` - A [client](https://valorant-js.stoplight.io/docs/valorant-js/docs/client/Constructor.md) instance
 
 ### Returns
