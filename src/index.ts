@@ -57,6 +57,7 @@ export class RiotApiClient {
         // set cookies
         await this.playerApi.getCookies();
         this.jar = this.http.getCookieJar();
+        this.buildServices(); // calling this method so many times is bad
         // login and setup some stuff
         (this.auth as any) = {};
         this.auth.accessToken = await this.playerApi.getAccessToken(this.#config.username, this.#config.password);
