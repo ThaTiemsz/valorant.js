@@ -181,7 +181,7 @@ export class Http extends AbstractHttp {
      * @param res Axios response
      */
     async setCookieJar(res: AxiosResponse): Promise<void> {
-        const cookies = res.headers["set-cookie"] ?? [];
+        const cookies = res.headers.getAll("set-cookie") ?? [];
         if (debug) console.log("Http.setCookieJar cookies", cookies);
         await Promise.all(
             cookies.map(cookie => this.jar.setCookie(cookie, res.config.url, { ignoreError: this.ignoreCookieErrors }))
